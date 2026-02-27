@@ -1,53 +1,102 @@
-import { createProxyApp } from './proxy';
+import express from 'express';
 import dotenv from 'dotenv';
+import { paymentGate } from './payment';
+import { createProxy } from './proxy';
 
-// Load environment variables
+// Load environment variables at the very top
 dotenv.config();
 
-const DEFAULT_TARGET = process.env.DEFAULT_TARGET || 'http://localhost:3000';
-const DEFAULT_PRICE = parseFloat(process.env.DEFAULT_PRICE || '0.01');
-const DEFAULT_PORT = parseInt(process.env.DEFAULT_PORT || '4000');
-
-// Get command line arguments
-const args = process.argv.slice(2);
-const targetIndex = args.indexOf('--target');
-const priceIndex = args.indexOf('--price');
-const portIndex = args.indexOf('--port');
-
-const target = targetIndex !== -1 ? args[targetIndex + 1] : DEFAULT_TARGET;
-const price = priceIndex !== -1 ? parseFloat(args[priceIndex + 1]) : DEFAULT_PRICE;
-const port = portIndex !== -1 ? parseInt(args[portIndex + 1]) : DEFAULT_PORT;
-
-// Validate arguments
-if (!target) {
-  console.error('❌ Error: Target URL is required');
-  console.log('Usage: node dist/index.js --target <url> [--price <amount>] [--port <port>]');
-  process.exit(1);
+// Configuration interface
+interface Config {
+  targetUrl: string;
+  price: number;
+  walletAddress: string;
+  port: number;
+  pinionPrivateKey: string;
 }
 
-if (price <= 0) {
-  console.error('❌ Error: Price must be greater than 0');
-  process.exit(1);
+// Load and validate configuration
+function loadConfig(): Config {
+  const targetUrl = process.env.TARGET_URL || 'http://localhost:3000';
+  const price = parseFloat(process.env.PRICE || '0.01');
+  const walletAddress = process.env.WALLET_ADDRESS || '';
+  const port = parseInt(process.env.PORT || '4000');
+  const pinionPrivateKey = process.env.PINION_PRIVATE_KEY || '';
+
+  // Validate required environment variables
+  if (!walletAddress) {
+    throw new Error('WALLET_ADDRESS environment variable is required');
+  }
+
+  if (!walletAddress.startsWith('0x')) {
+    throw new Error('WALLET_ADDRESS must start with 0x');
+  }
+
+  if (!pinionPrivateKey) {
+    throw new Error('PINION_PRIVATE_KEY environment variable is required');
+  }
+
+  if (!pinionPrivateKey.startsWith('0x')) {
+    throw new Error('PINION_PRIVATE_KEY must start with 0x');
+  }
+
+  if (price <= 0) {
+    throw new Error('PRICE must be greater than 0');
+  }
+
+  if (port <= 0 || port > 65535) {
+    throw new Error('PORT must be between 1 and 65535');
+  }
+
+  try {
+    new URL(targetUrl);
+  } catch {
+    throw new Error('TARGET_URL must be a valid URL');
+  }
+
+  return {
+    targetUrl,
+    price,
+    walletAddress,
+    port,
+    pinionPrivateKey
+  };
 }
 
-if (port <= 0 || port > 65535) {
-  console.error('❌ Error: Port must be between 1 and 65535');
-  process.exit(1);
+// Main application
+function main(): void {
+  try {
+    // Load configuration
+    const config = loadConfig();
+
+    // Create Express app
+    const app = express();
+
+    // Apply middleware in order
+    // 1. Payment gate middleware first (blocks unauthorized requests)
+    app.use(paymentGate(config.price, config.walletAddress));
+
+    // 2. Proxy middleware second (forwards authorized requests)
+    app.use(createProxy(config.targetUrl));
+
+    // Start server
+    app.listen(config.port, () => {
+      console.log('🚀 Subscription Bouncer is running');
+      console.log(`   Proxy:  http://localhost:${config.port}`);
+      console.log(`   Target: ${config.targetUrl}`);
+      console.log(`   Price:  $${config.price} USDC per call`);
+      console.log(`   Wallet: ${config.walletAddress}`);
+      console.log('');
+      console.log('Usage examples:');
+      console.log(`curl http://localhost:${config.port}/api/endpoint`);
+      console.log(`curl -H "X-PAYMENT: signed_x402_payment_data" http://localhost:${config.port}/api/endpoint`);
+    });
+
+  } catch (error) {
+    console.error('❌ Failed to start Subscription Bouncer:', error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
 }
 
-console.log('🔧 Starting Subscription Bouncer with configuration:');
-console.log(`   Target: ${target}`);
-console.log(`   Price: ${price} USDC per request`);
-console.log(`   Port: ${port}`);
-console.log('');
-
-// Create and start the proxy app
-const app = createProxyApp(target);
-app.listen(port, () => {
-  console.log(`🚀 Subscription Bouncer started on port ${port}`);
-  console.log(`📡 Proxying to: ${target}`);
-  console.log(`💰 Price per request: ${price} USDC`);
-  console.log('');
-  console.log('Usage examples:');
-  console.log(`curl http://localhost:${port}/your-endpoint`);
-});
+// Start the application
+main();

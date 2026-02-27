@@ -1,8 +1,9 @@
 {
   "name": "subscription-bouncer",
   "version": "1.0.0",
-  "description": "Reverse proxy middleware that monetizes APIs with micropayments",
+  "description": "Monetize any API with x402 micropayments in one command. Built on PinionOS.",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
     "subscription-bouncer": "./dist/cli.js"
@@ -11,19 +12,27 @@
     "build": "tsc",
     "dev": "node --loader ts-node/esm src/index.ts",
     "cli": "node --loader ts-node/esm src/cli.ts",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "proxy",
+    "x402",
     "micropayments",
     "api",
-    "x402",
-    "pinionos",
+    "proxy",
+    "pinion",
     "base",
-    "blockchain"
+    "usdc",
+    "web3"
   ],
-  "author": "Hackathon Team",
+  "author": "Mandip Kamaliya",
   "license": "MIT",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "bouncer.config.example.json"
+  ],
   "dependencies": {
     "commander": "^14.0.3",
     "dotenv": "^16.3.1",

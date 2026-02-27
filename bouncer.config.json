@@ -1,0 +1,7 @@
+{
+  "target": "http://localhost:3000",
+  "price": 0.01,
+  "port": 4000,
+  "wallet": "0xE17260e291BA06fCccED9701A0FF793f8f6b49cf",
+  "network": "base-sepolia"
+}

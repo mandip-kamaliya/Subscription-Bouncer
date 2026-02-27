@@ -1,81 +1,109 @@
-# Subscription Bouncer 🚀
+# Subscription Bouncer
+Monetize any API with x402 micropayments in one command
 
-A reverse proxy middleware that lets any developer monetize their existing API with micropayments in one command.
+╔════════════════════════════════════╗
+║     💰 Subscription Bouncer        ║
+║   Monetize any API in 1 command    ║
+╚════════════════════════════════════╝
 
-## What It Does
+## What is it?
 
-Instead of building auth systems or subscription billing, you just wrap your API with Subscription Bouncer and every API call requires a small USDC payment to go through.
+Subscription Bouncer is a reverse proxy middleware that instantly monetizes any existing API with x402 micropayments. Simply point it at your API and every request will require a USDC payment before being forwarded. Built on PinionOS infrastructure and Base blockchain, it enables developers to earn revenue from their APIs without changing a single line of code in their existing applications.
 
-## How It Works
+## Built on PinionOS
 
-1. Developer runs: `npx subscription-bouncer --target http://localhost:3000 --price 0.01`
-2. Subscription Bouncer starts a proxy server on port 4000
-3. Any request to port 4000 is intercepted
-4. If no payment header → caller gets a 402 response explaining what to pay and where
-5. If payment header exists → verify it using PinionOS x402 protocol on Base blockchain
-6. If payment valid → forward request to the real API and return response
-7. Developer earns USDC automatically per API call, no code changes to their API needed
+Subscription Bouncer is built on top of PinionOS — the infrastructure for autonomous paid software. PinionOS handles all x402 payment signing, verification and USDC settlement on Base blockchain.
 
-## Tech Stack
+- **GitHub**: https://github.com/chu2bard/pinion-os
+- **npm**: https://www.npmjs.com/package/pinion-os
 
-- **PinionOS** (pinion-os npm package) — handles x402 micropayment verification on Base L2
-- **x402 protocol** — a payment standard where HTTP 402 signals "pay to access"
-- **Express.js** — the proxy server
-- **http-proxy-middleware** — forwards requests to target API
-- **TypeScript** — clean typed code
-- **Base blockchain** — where USDC payments settle
+## How it works
+
+Your API → Subscription Bouncer → x402 payment gate → USDC on Base
+
+1. **Deploy** - Point Subscription Bouncer at your existing API
+2. **Paywall** - Every request gets a 402 response with payment instructions  
+3. **Payment** - Client pays USDC via x402 protocol on Base blockchain
+4. **Verify** - PinionOS verifies the payment on-chain
+5. **Forward** - Valid requests are forwarded to your original API
+6. **Earn** - You automatically receive USDC in your wallet
+
+## Quick Start (3 steps)
+
+**Step 1:** Install Subscription Bouncer
+```bash
+npm install subscription-bouncer
+```
+
+**Step 2:** Run with your API
+```bash
+npx subscription-bouncer --target http://your-api.com --price 0.01 --wallet 0xYOUR_WALLET --key 0xYOUR_PRIVATE_KEY
+```
+
+**Step 3:** Your API is now paywalled. Start earning USDC! 🎉
+
+## Requirements
+
+- **Node.js 18+** - Modern JavaScript runtime
+- **Wallet with USDC** - On Base (mainnet) or Base Sepolia (testnet)
+- **PINION_PRIVATE_KEY** - Private key of your wallet
+- **Small amount of ETH** - On Base for gas fees
 
 ## Installation
 
 ```bash
-# Install dependencies
-npm install
-
-# Build the project
-npm run build
-
-# Or use directly with npx (recommended)
-npx subscription-bouncer --help
+npm install subscription-bouncer
 ```
-
-## Setup
-
-1. **Copy environment file:**
-   ```bash
-   cp .env.example .env
-   ```
-
-2. **Set your private key:**
-   Edit `.env` and add your wallet private key that has USDC on Base network:
-   ```
-   PINION_PRIVATE_KEY=your_private_key_here
-   ```
-
-3. **Ensure you have USDC on Base network** in the wallet corresponding to your private key.
 
 ## Usage
 
-### Basic Usage
+### CLI Tool
+
+The fastest way to monetize any API - no code changes required:
 
 ```bash
-# Start proxy for API running on localhost:3000, charging 0.01 USDC per request
-npx subscription-bouncer --target http://localhost:3000 --price 0.01
-
-# Custom port
-npx subscription-bouncer --target http://localhost:3000 --price 0.01 --port 8080
+npx subscription-bouncer --target http://localhost:3000 --price 0.01 --wallet 0xYOUR_WALLET --key 0xYOUR_PRIVATE_KEY
 ```
 
-### Development
+**CLI Options:**
+- `--target, -t` - URL of the API to proxy (required)
+- `--price, -p` - USDC price per call (default: 0.01)
+- `--port` - Port to run bouncer on (default: 4000)
+- `--wallet, -w` - Wallet address to receive payments (required)
+- `--key, -k` - Private key for PinionOS (or use PINION_PRIVATE_KEY env var)
+- `--network, -n` - Network: base or base-sepolia (default: base-sepolia)
 
+### Config File (bouncer.config.json)
+
+Create a `bouncer.config.json` in your project root:
+
+```json
+{
+  "target": "http://localhost:3000",
+  "price": 0.01,
+  "port": 4000,
+  "wallet": "0xYOUR_WALLET_ADDRESS",
+  "network": "base-sepolia"
+}
+```
+
+Then just run:
 ```bash
-# Run in development mode
-npm run dev -- --target http://localhost:3000 --price 0.01
+npx subscription-bouncer
+```
 
-# Build
-npm run build
+### Express Middleware
 
-# Start built version
-npm start -- --target http://localhost:3000 --price 0.01
+For direct integration into existing Express applications:
+
+```typescript
+import { subscriptionBouncer } from 'subscription-bouncer'
+
+app.use('/api', subscriptionBouncer({
+  price: 0.01,
+  wallet: '0xYOUR_WALLET',
+  privateKey: process.env.PINION_PRIVATE_KEY
+}))
 ```
 
 ## API Usage Examples
@@ -102,10 +130,19 @@ Response:
 ### With Payment
 
 ```bash
-curl -H "x402: tx=0x123...&signature=abc123..." http://localhost:4000/api/users
+curl -H "X-PAYMENT: <signed_payment>" http://localhost:4000/api/users
 ```
 
 If payment is valid, the request is forwarded to your target API and the response is returned.
+
+## Why Subscription Bouncer?
+
+- ✅ **No code changes** to your existing API
+- ✅ **Works with any HTTP API** - REST, GraphQL, you name it
+- ✅ **Instant USDC earnings** per API call
+- ✅ **Built on PinionOS** x402 infrastructure
+- ✅ **Multiple deployment options** - CLI, config file, and Express middleware
+- ✅ **Base blockchain** - Fast and cheap transactions
 
 ## CLI Options
 

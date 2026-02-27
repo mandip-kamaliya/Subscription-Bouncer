@@ -1,10 +1,10 @@
 # Subscription Bouncer
 Monetize any API with x402 micropayments in one command
 
-╔════════════════════════════════════╗
-║     💰 Subscription Bouncer        ║
-║   Monetize any API in 1 command    ║
-╚════════════════════════════════════╝
+---
+> 💰 **Subscription Bouncer** — Monetize any API with x402 micropayments in one command.  
+> Built on [PinionOS](https://github.com/chu2bard/pinion-os) • Base Blockchain • USDC Payments
+---
 
 ## What is it?
 
@@ -14,8 +14,9 @@ Subscription Bouncer is a reverse proxy middleware that instantly monetizes any 
 
 Subscription Bouncer is built on top of PinionOS — the infrastructure for autonomous paid software. PinionOS handles all x402 payment signing, verification and USDC settlement on Base blockchain.
 
-- **GitHub**: https://github.com/chu2bard/pinion-os
-- **npm**: https://www.npmjs.com/package/pinion-os
+- **PinionOS GitHub**: https://github.com/chu2bard/pinion-os
+- **PinionOS npm**: https://www.npmjs.com/package/pinion-os
+- **Subscription Bouncer npm**: https://www.npmjs.com/package/subscription-bouncer
 
 ## How it works
 
@@ -143,12 +144,6 @@ If payment is valid, the request is forwarded to your target API and the respons
 - ✅ **Built on PinionOS** x402 infrastructure
 - ✅ **Multiple deployment options** - CLI, config file, and Express middleware
 - ✅ **Base blockchain** - Fast and cheap transactions
-
-## CLI Options
-
-- `-t, --target <url>` - Target API URL to proxy to (default: http://localhost:3000)
-- `-p, --price <amount>` - Price per API call in USDC (default: 0.01)
-- `--port <port>` - Port to run the proxy server on (default: 4000)
 
 ## Environment Variables
 

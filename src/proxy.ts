@@ -1,5 +1,6 @@
 import express from 'express';
 import { createProxyMiddleware, Options } from 'http-proxy-middleware';
+import { paymentGate } from './payment.js';
 
 /**
  * Creates Express middleware that forwards all requests to a target URL

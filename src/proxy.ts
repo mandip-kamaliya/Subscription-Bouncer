@@ -24,6 +24,7 @@ export function createProxy(target: string): express.RequestHandler {
     target,
     changeOrigin: true, // Changes the origin of the host header to the target URL
     secure: false, // Ignore SSL certificate errors (useful for local development)
+    timeout: 10000, // 10 second timeout for proxy requests
     
     // Log proxy events for debugging
     logLevel: 'warn' as const,
@@ -32,23 +33,22 @@ export function createProxy(target: string): express.RequestHandler {
     onError: (err: Error, req: express.Request, res: express.Response) => {
       console.error(`Proxy error for ${req.method} ${req.path}:`, err.message);
       
-      // Return 502 Bad Gateway with clear error message
+      // Return clean 502 error without exposing internal details
       res.status(502).json({
-        error: 'Bad Gateway',
-        message: `Failed to connect to target API at ${target}`,
-        details: err.message,
+        error: 'Target API unreachable',
+        target: target,
         timestamp: new Date().toISOString()
       });
     },
     
-    // Log successful proxy requests
+    // Log successful proxy requests (remove debug logs for production)
     onProxyReq: (proxyReq, req, res) => {
-      console.log(`🔄 Proxying ${req.method} ${req.path} → ${target}`);
+      // Remove debug log for production
     },
     
-    // Log proxy responses
+    // Log proxy responses (remove debug logs for production)
     onProxyRes: (proxyRes, req, res) => {
-      console.log(`✅ Proxy response: ${proxyRes.statusCode} for ${req.method} ${req.path}`);
+      // Remove debug log for production
     }
   };
 

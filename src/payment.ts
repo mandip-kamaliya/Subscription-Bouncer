@@ -92,10 +92,10 @@ export function paymentGate(price: number, walletAddress: string): express.Reque
       } catch (verificationError) {
         console.error('Payment verification error:', verificationError);
         
-        // Return 403 for verification errors
+        // Return 403 for verification errors with clean message
         res.status(403).json({
-          error: 'Payment verification error',
-          message: verificationError instanceof Error ? verificationError.message : 'Unknown verification error',
+          error: 'Payment verification failed',
+          message: 'Unable to verify payment. Please check your payment details and try again.',
           price: `${price} USDC`,
           wallet: walletAddress
         });
@@ -104,10 +104,10 @@ export function paymentGate(price: number, walletAddress: string): express.Reque
     } catch (middlewareError) {
       console.error('Payment middleware error:', middlewareError);
       
-      // Return 500 for unexpected errors
+      // Return 500 for unexpected errors with generic message
       res.status(500).json({
         error: 'Internal server error',
-        message: 'Payment processing failed'
+        message: 'Payment processing temporarily unavailable. Please try again later.'
       });
     }
   };

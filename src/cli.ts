@@ -23,8 +23,25 @@ program
   .option('-n, --network <network>', 'Network: base or base-sepolia')
   .action(async (cliOptions) => {
     try {
+      // Check for required arguments before loading config
+      if (!cliOptions.target) {
+        console.error('❌ Error: --target is required. Example: --target http://localhost:3000');
+        process.exit(1);
+      }
+
+      if (!cliOptions.wallet) {
+        console.error('❌ Error: --wallet is required. Example: --wallet 0xYOUR_WALLET');
+        process.exit(1);
+      }
+
       // Load configuration with CLI arguments taking highest priority
       const config = loadConfig(cliOptions);
+
+      // Check for private key after config loading
+      if (!config.privateKey) {
+        console.error('❌ Error: PINION_PRIVATE_KEY is required. Set it with --key flag or in .env file');
+        process.exit(1);
+      }
 
       console.log('🔧 Starting Subscription Bouncer with merged configuration:');
       console.log(`   Target: ${config.target}`);

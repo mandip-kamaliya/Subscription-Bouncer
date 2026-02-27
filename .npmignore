@@ -1,0 +1,40 @@
+# Source files
+src/
+examples/
+tests/
+
+# Environment files
+.env
+.env.example
+bouncer.config.json
+
+# Configuration files
+tsconfig.json
+node_modules/
+
+# Development files
+.git/
+.gitignore
+README-DEV.md
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp

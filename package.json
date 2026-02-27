@@ -3,26 +3,29 @@
   "version": "1.0.0",
   "description": "Reverse proxy middleware that monetizes APIs with micropayments",
   "main": "dist/index.js",
+  "type": "module",
   "bin": {
-    "subscription-bouncer": "dist/cli.js"
+    "subscription-bouncer": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node src/index.ts",
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "cli": "node --loader ts-node/esm src/cli.ts",
     "start": "node dist/index.js"
   },
   "keywords": [
     "proxy",
     "micropayments",
     "api",
-    "monetization",
-    "blockchain",
-    "usdc",
-    "base"
+    "x402",
+    "pinionos",
+    "base",
+    "blockchain"
   ],
   "author": "Hackathon Team",
   "license": "MIT",
   "dependencies": {
+    "commander": "^14.0.3",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
@@ -30,9 +33,13 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.25",
-    "@types/node": "^20.19.34",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "@types/node": "^20.4.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   },
   "repository": {
     "type": "git",
